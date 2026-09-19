@@ -34,8 +34,9 @@ st.set_page_config(
 DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 MODEL_OPTIONS = {
-    "Llama 3.3 70B (best quality)": "llama-3.3-70b-versatile",
-    "Llama 3.1 8B (fastest)": "llama-3.1-8b-instant",
+    "GPT-OSS 120B (best quality)": "openai/gpt-oss-120b",
+    "GPT-OSS 20B (fastest)": "openai/gpt-oss-20b",
+    "Qwen3.6 27B": "qwen/qwen3.6-27b",
 }
 
 # A palette used to color-code distinct activities in the grid view
