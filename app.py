@@ -186,6 +186,18 @@ st.markdown(
         margin-right: 6px;
     }
 
+    /* Style Streamlit's native bordered containers to match the glass look */
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 18px !important;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        margin-bottom: 1.2rem;
+    }
+
     footer, #MainMenu {visibility: hidden;}
     </style>
     """,
@@ -431,22 +443,21 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-example = (
-    "e.g. \"Make me a study timetable for Monday to Friday, 8am to 6pm. "
-    "I need 2 hours of Math, 1.5 hours of Physics, and 1 hour of Chemistry "
-    "daily, with a lunch break at 1pm and short breaks between subjects. "
-    "Add gym on Tuesday and Thursday evenings.\""
-)
-user_prompt = st.text_area(
-    "📝 Describe the timetable you want",
-    height=150,
-    placeholder=example,
-)
-col_a, col_b = st.columns([1, 3])
-with col_a:
-    generate_clicked = st.button("✨ Generate Timetable", use_container_width=True)
-st.markdown("</div>", unsafe_allow_html=True)
+with st.container(border=True):
+    example = (
+        "e.g. \"Make me a study timetable for Monday to Friday, 8am to 6pm. "
+        "I need 2 hours of Math, 1.5 hours of Physics, and 1 hour of Chemistry "
+        "daily, with a lunch break at 1pm and short breaks between subjects. "
+        "Add gym on Tuesday and Thursday evenings.\""
+    )
+    user_prompt = st.text_area(
+        "📝 Describe the timetable you want",
+        height=150,
+        placeholder=example,
+    )
+    col_a, col_b = st.columns([1, 3])
+    with col_a:
+        generate_clicked = st.button("✨ Generate Timetable", use_container_width=True)
 
 if generate_clicked:
     api_key = get_api_key()
@@ -477,47 +488,45 @@ if "timetable_df" in st.session_state and not st.session_state["timetable_df"].e
     df = st.session_state["timetable_df"]
     title = data.get("title", "My Timetable")
 
-    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.markdown(f"### 📌 {title}")
+    with st.container(border=True):
+        st.markdown(f"### 📌 {title}")
 
-    view = st.radio("View as", ["Grid", "Table"], horizontal=True, label_visibility="collapsed")
-    if view == "Grid":
-        st.markdown(render_grid_html(df), unsafe_allow_html=True)
-    else:
-        st.dataframe(df, use_container_width=True, hide_index=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        view = st.radio("View as", ["Grid", "Table"], horizontal=True, label_visibility="collapsed")
+        if view == "Grid":
+            st.markdown(render_grid_html(df), unsafe_allow_html=True)
+        else:
+            st.dataframe(df, use_container_width=True, hide_index=True)
 
     # Downloads
-    st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-    st.markdown("#### ⬇️ Download your timetable")
-    dl1, dl2, dl3 = st.columns(3)
+    with st.container(border=True):
+        st.markdown("#### ⬇️ Download your timetable")
+        dl1, dl2, dl3 = st.columns(3)
 
-    csv_bytes = df.to_csv(index=False).encode("utf-8")
-    with dl1:
-        st.download_button(
-            "Download CSV", data=csv_bytes, file_name=f"{title.replace(' ', '_')}.csv",
-            mime="text/csv", use_container_width=True,
-        )
+        csv_bytes = df.to_csv(index=False).encode("utf-8")
+        with dl1:
+            st.download_button(
+                "Download CSV", data=csv_bytes, file_name=f"{title.replace(' ', '_')}.csv",
+                mime="text/csv", use_container_width=True,
+            )
 
-    excel_buffer = io.BytesIO()
-    with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
-        df.to_excel(writer, index=False, sheet_name="Timetable")
-    with dl2:
-        st.download_button(
-            "Download Excel", data=excel_buffer.getvalue(),
-            file_name=f"{title.replace(' ', '_')}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            use_container_width=True,
-        )
+        excel_buffer = io.BytesIO()
+        with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Timetable")
+        with dl2:
+            st.download_button(
+                "Download Excel", data=excel_buffer.getvalue(),
+                file_name=f"{title.replace(' ', '_')}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True,
+            )
 
-    html_doc = build_downloadable_html(title, df)
-    with dl3:
-        st.download_button(
-            "Download HTML", data=html_doc.encode("utf-8"),
-            file_name=f"{title.replace(' ', '_')}.html",
-            mime="text/html", use_container_width=True,
-        )
-    st.markdown("</div>", unsafe_allow_html=True)
+        html_doc = build_downloadable_html(title, df)
+        with dl3:
+            st.download_button(
+                "Download HTML", data=html_doc.encode("utf-8"),
+                file_name=f"{title.replace(' ', '_')}.html",
+                mime="text/html", use_container_width=True,
+            )
 else:
     st.markdown(
         "<div class='glass-card' style='text-align:center; color:#a9a9c8;'>"
